@@ -17,7 +17,7 @@ def create_model(num_classes=2):
     model = SSD300(backbone=backbone, num_classes=num_classes)
 
     # https://ngc.nvidia.com/catalog/models -> search ssd -> download FP32
-    pre_ssd_path = "/kaggle/input/nvidia_ssdpyt_fp32/nvidia_ssdpyt_fp32.pt"
+    pre_ssd_path = "/kaggle/input/nvidia-ssdpyt-fp32/nvidia_ssdpyt_fp32.pt"
     if os.path.exists(pre_ssd_path) is False:
         raise FileNotFoundError("nvidia_ssdpyt_fp32.pt not find in {}".format(pre_ssd_path))
     pre_model_dict = torch.load(pre_ssd_path, map_location='cpu')
