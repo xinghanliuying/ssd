@@ -8,7 +8,9 @@ from my_dataset import VOCDataSet
 from src import SSD300, Backbone
 import train_utils.train_eval_utils as utils
 from train_utils import get_coco_api_from_dataset
+import wandb
 
+wandb.init(project="ssd-project", entity="xinghanliuying")
 
 def create_model(num_classes=2):
     # https://download.pytorch.org/models/resnet50-19c8e357.pth
@@ -40,6 +42,11 @@ def create_model(num_classes=2):
 
 
 def main(parser_data):
+    config = wandb.config  # Initialize config
+    config.batch_size = 4  # input batch size for training (default: 64)
+    config.epochs = 50  # number of epochs to train (default: 10)
+    config.lr = 0.1  # learning rate (default: 0.01)
+    config.momentum = 0.1  # SGD momentum (default: 0.5)
     device = torch.device(parser_data.device if torch.cuda.is_available() else "cpu")
     print("Using {} device training.".format(device.type))
 
@@ -114,7 +121,7 @@ def main(parser_data):
     train_loss = []
     learning_rate = []
     val_map = []
-
+    wandb.watch(model, log="all")
     # 提前加载验证集数据，以免每次验证时都要重新加载一次数据，节省时间
     val_data = get_coco_api_from_dataset(val_data_loader.dataset)
     for epoch in range(parser_data.start_epoch, parser_data.epochs):
@@ -146,8 +153,14 @@ def main(parser_data):
             'optimizer': optimizer.state_dict(),
             'lr_scheduler': lr_scheduler.state_dict(),
             'epoch': epoch}
-        torch.save(save_files, "/kaggle/working/save_weights/ssd300-{}.pth".format(epoch))
-
+        if epoch > (parser_data.epochs - 20):
+            torch.save(save_files, "/kaggle/working/save_weights/ssd300-{}.pth".format(epoch))
+        wandb.log({
+            "lr": lr,
+            "train_loss": mean_loss.item(),
+            "metrics/mAP_0.5": coco_info[1],
+            "metrics/mAP_0.5:0.95": coco_info[0],
+        })
     # plot loss and lr curve
     if len(train_loss) != 0 and len(learning_rate) != 0:
         from plot_curve import plot_loss_and_lr
