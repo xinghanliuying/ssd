@@ -10,14 +10,14 @@ import train_utils.train_eval_utils as utils
 from train_utils import get_coco_api_from_dataset
 
 
-def create_model(num_classes=21):
+def create_model(num_classes=2):
     # https://download.pytorch.org/models/resnet50-19c8e357.pth
     # pre_train_path = "./src/resnet50.pth"
     backbone = Backbone()
     model = SSD300(backbone=backbone, num_classes=num_classes)
 
     # https://ngc.nvidia.com/catalog/models -> search ssd -> download FP32
-    pre_ssd_path = "./src/nvidia_ssdpyt_fp32.pt"
+    pre_ssd_path = "/kaggle/input/nvidia_ssdpyt_fp32/nvidia_ssdpyt_fp32.pt"
     if os.path.exists(pre_ssd_path) is False:
         raise FileNotFoundError("nvidia_ssdpyt_fp32.pt not find in {}".format(pre_ssd_path))
     pre_model_dict = torch.load(pre_ssd_path, map_location='cpu')
@@ -43,10 +43,10 @@ def main(parser_data):
     device = torch.device(parser_data.device if torch.cuda.is_available() else "cpu")
     print("Using {} device training.".format(device.type))
 
-    if not os.path.exists("save_weights"):
-        os.mkdir("save_weights")
+    if not os.path.exists("/kaggle/working/save_weights"):
+        os.mkdir("/kaggle/working/save_weights")
 
-    results_file = "results{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    results_file = "/kaggle/working/results{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
     data_transform = {
         "train": transforms.Compose([transforms.SSDCropping(),
@@ -146,7 +146,7 @@ def main(parser_data):
             'optimizer': optimizer.state_dict(),
             'lr_scheduler': lr_scheduler.state_dict(),
             'epoch': epoch}
-        torch.save(save_files, "./save_weights/ssd300-{}.pth".format(epoch))
+        torch.save(save_files, "/kaggle/working/save_weights/ssd300-{}.pth".format(epoch))
 
     # plot loss and lr curve
     if len(train_loss) != 0 and len(learning_rate) != 0:
