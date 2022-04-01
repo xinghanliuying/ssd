@@ -23,18 +23,18 @@ def time_synchronized():
     return time.time()
 
 
-def main():
+def main(predict_data):
     # get devices
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(device)
 
     # create model
     # 目标检测数 + 背景
-    num_classes = 20 + 1
+    num_classes = 2
     model = create_model(num_classes=num_classes)
 
     # load train weights
-    train_weights = "./save_weights/ssd300-14.pth"
+    train_weights = predict_data.model_path
     model.load_state_dict(torch.load(train_weights, map_location=device)['model'])
     model.to(device)
 
@@ -47,7 +47,8 @@ def main():
     category_index = {v: k for k, v in class_dict.items()}
 
     # load image
-    original_img = Image.open("./test.jpg")
+    img_path = predict_data.image_path
+    original_img = Image.open(img_path)
 
     # from pil image to tensor, do not normalize image
     data_transform = transforms.Compose([transforms.Resize(),
@@ -89,4 +90,16 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description=__doc__)
+
+    parser.add_argument('--model-path', default='./', help='model.path')
+    # 检测目标类别数(不包含背景)
+    parser.add_argument('--image_path', default='./', help='image.path')
+
+    args = parser.parse_args()
+    print(args)
+    main(args)
+
