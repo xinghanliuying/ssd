@@ -42,7 +42,7 @@ def filter_low_thresh(boxes, scores, classes, category_index, thresh, box_to_dis
             display_str = '{}: {}%'.format(display_str, int(100 * scores[i]))
             box_to_display_str_map[box].append(display_str)
             box_to_color_map[box] = STANDARD_COLORS[
-                classes[i] % len(STANDARD_COLORS)+5]
+                classes[i] % len(STANDARD_COLORS)+9]
         else:
             break  # 网络输出概率已经排序过，当遇到一个不满足后面的肯定不满足
 
