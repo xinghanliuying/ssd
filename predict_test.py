@@ -87,7 +87,7 @@ def main(predict_data):
                  line_thickness=5)
         plt.imshow(original_img)
         plt.show()
-
+        original_img.save("/kaggle/working/test_result.jpg")
 
 if __name__ == "__main__":
     import argparse
