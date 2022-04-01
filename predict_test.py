@@ -84,7 +84,7 @@ def main(predict_data):
                  predict_scores,
                  category_index,
                  thresh=0.5,
-                 line_thickness=5)
+                 line_thickness=3)
         plt.imshow(original_img)
         plt.show()
         original_img.save("/kaggle/working/test_result.jpg")
